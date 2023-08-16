@@ -1,42 +1,66 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import Link from "next/link"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/router"
-import { fetchCoffeeStores, fetchCoffeeStore } from '@/lib/coffee-stores'
-import styles from '../../styles/coffee-store.module.css'
+import Link from "next/link"
+import Head from "next/head"
+import Image from "next/image"
+import styles from "../../styles/coffee-store.module.css"
+import { fetchCoffeeStores } from "../../lib/coffee-stores"
+import { useStore } from "../../context/store-context"
+import { isEmpty } from "../../utils"
 
 export async function getStaticProps({ params }) {
-  const coffeeStore = await fetchCoffeeStore(params?.id)
+  const coffeeStores = await fetchCoffeeStores()
+  const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
+    return coffeeStore.fsq_id.toString() === params.id
+  })
+
   return {
     props: {
-      coffeeStore
-    }
+      coffeeStore: findCoffeeStoreById ? findCoffeeStoreById : {},
+    },
   }
 }
 
 export async function getStaticPaths() {
-  const data = await fetchCoffeeStores()
-  const paths = data.map(store => {
+  const coffeeStores = await fetchCoffeeStores()
+  const paths = coffeeStores.map((coffeeStore) => {
     return {
       params: {
-        id: store.fsq_id.toString()
-      }
+        id: coffeeStore.fsq_id.toString(),
+      },
     }
   })
-
   return {
     paths,
-    fallback: true
+    fallback: true,
   }
 }
 
-
-const CoffeeStore = ({ coffeeStore }) => {
+const CoffeeStore = (initialProps) => {
   const router = useRouter()
-  if(router.isFallback) {
+  if (router.isFallback) {
     return <div>Loading...</div>
   }
-  
+
+  const id = router.query.id
+
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore)
+
+  const {
+    state: { coffeeStores },
+  } = useStore()
+
+  useEffect(() => {
+    if (isEmpty(initialProps.coffeeStore)) {
+      if (coffeeStores.length > 0) {
+        const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
+          return coffeeStore.fsq_id.toString() === id //dynamic id
+        })
+        setCoffeeStore(findCoffeeStoreById)
+      }
+    }
+  }, [id])
+
   const { name, location, related_places, imgUrl } = coffeeStore
 
   const handleUpvoteButton = () => {
@@ -63,7 +87,7 @@ const CoffeeStore = ({ coffeeStore }) => {
 
             <Image
               src={imgUrl || 'https://fastly.4sqi.net/img/general/35522112_aQQekWBaM6JApcMZaNEhNZCyXAVbnxiNVopBSrSmSXU.jpg'}
-              alt={name}
+              alt={name || "Coffee Shop"}
               width={600}
               height={360}
               className={styles.storeImg}
@@ -82,7 +106,7 @@ const CoffeeStore = ({ coffeeStore }) => {
               <p className={styles.text}>{location?.formatted_address}</p>
             </div>
 
-            {related_places.parent &&
+            {related_places?.parent &&
               <div className={styles.iconWrapper}>
                 <Image
                   src='/static/icons/nearMe.svg'
