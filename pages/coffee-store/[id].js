@@ -61,18 +61,16 @@ const CoffeeStore = ({ coffeeStore }) => {
               <h1 className={styles.name}>{name}</h1>
             </div>
 
-            <div className={styles.storeImgWrapper}>
-              <Image
-                src={imgUrl || 'https://fastly.4sqi.net/img/general/35522112_aQQekWBaM6JApcMZaNEhNZCyXAVbnxiNVopBSrSmSXU.jpg'}
-                alt={name}
-                width={600}
-                height={360}
-                className={styles.storeImg}
-                priority={true}
-              />
-            </div>
-
+            <Image
+              src={imgUrl || 'https://fastly.4sqi.net/img/general/35522112_aQQekWBaM6JApcMZaNEhNZCyXAVbnxiNVopBSrSmSXU.jpg'}
+              alt={name}
+              width={600}
+              height={360}
+              className={styles.storeImg}
+              priority={true}
+            />
           </div>
+          
           <aside className={`${styles.col2} glass`}>
             <div className={styles.iconWrapper}>
               <Image
