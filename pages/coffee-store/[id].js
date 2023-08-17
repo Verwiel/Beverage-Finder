@@ -11,7 +11,7 @@ import { isEmpty } from "../../utils"
 export async function getStaticProps({ params }) {
   const coffeeStores = await fetchCoffeeStores()
   const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
-    return coffeeStore.fsq_id.toString() === params.id
+    return coffeeStore.id.toString() === params.id
   })
 
   return {
@@ -26,7 +26,7 @@ export async function getStaticPaths() {
   const paths = coffeeStores.map((coffeeStore) => {
     return {
       params: {
-        id: coffeeStore.fsq_id.toString(),
+        id: coffeeStore.id.toString(),
       },
     }
   })
@@ -54,14 +54,14 @@ const CoffeeStore = (initialProps) => {
     if (isEmpty(initialProps.coffeeStore)) {
       if (coffeeStores.length > 0) {
         const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
-          return coffeeStore.fsq_id.toString() === id //dynamic id
+          return coffeeStore.id.toString() === id //dynamic id
         })
         setCoffeeStore(findCoffeeStoreById)
       }
     }
   }, [id])
 
-  const { name, location, related_places, imgUrl } = coffeeStore
+  const { name, address, parent, imgUrl } = coffeeStore
 
   const handleUpvoteButton = () => {
     console.log('upvote')
@@ -103,10 +103,10 @@ const CoffeeStore = (initialProps) => {
                 width={24}
                 height={24}
               />
-              <p className={styles.text}>{location?.formatted_address}</p>
+              <p className={styles.text}>{address}</p>
             </div>
 
-            {related_places?.parent &&
+            {parent &&
               <div className={styles.iconWrapper}>
                 <Image
                   src='/static/icons/nearMe.svg'
@@ -114,7 +114,7 @@ const CoffeeStore = (initialProps) => {
                   width={24}
                   height={24}
                 />
-                <p className={styles.text}>{related_places.parent.name}</p>
+                <p className={styles.text}>{parent}</p>
               </div>
             }
 
