@@ -3,10 +3,11 @@ import { useRouter } from "next/router"
 import Link from "next/link"
 import Head from "next/head"
 import Image from "next/image"
+import useSWR from 'swr'
 import styles from "../../styles/coffee-store.module.css"
 import { fetchStores } from "../../lib/coffee-stores"
 import { useStore } from "../../context/store-context"
-import { isEmpty } from "../../utils"
+import { isEmpty, fetcher } from "../../utils"
 
 export async function getStaticProps({ params }) {
   const stores = await fetchStores()
@@ -17,6 +18,7 @@ export async function getStaticProps({ params }) {
   return {
     props: {
       store: storeFromContext ? storeFromContext : {},
+      // fallback: {}
     },
   }
 }
@@ -60,7 +62,6 @@ const Store = (initialProps) => {
       })
       
       const dbStore = await res.json()
-      console.log(dbStore)
     } catch (err) {
       console.error('Error creating store', err)
     }
@@ -85,11 +86,24 @@ const Store = (initialProps) => {
 
   const { name, address, parent, imgUrl, votes } = store
 
-  const [votingCount, setVotingCount] = useState(votes)
+  const [votingCount, setVotingCount] = useState(0)
+
+  const { data, error } = useSWR(`/api/getStoreById?id=${id}`, fetcher)
+
+  useEffect(() => {
+    if(data && data.id){
+      setStore(data)
+      setVotingCount(data.votes)
+    }
+  }, [data])
 
   const handleUpvoteButton = () => {
     let count = votingCount + 1
     setVotingCount(count)
+  }
+
+  if(error){
+    return <div>Something broke getting store page</div>
   }
   
   return (
