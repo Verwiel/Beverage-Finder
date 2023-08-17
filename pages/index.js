@@ -9,6 +9,7 @@ import Card from '../components/card'
 import styles from '../styles/Home.module.css'
 
 export async function getStaticProps(context) {
+  // dont use API routes within getStaticProps since the servers wont have started at build time.
   const data = await fetchCoffeeStores()
   return {
     props: {
@@ -32,11 +33,14 @@ export default function Home({ defaultCoffeeStores }) {
     async function displayCoffeeStoresByLocation() {
       if (latLong) {
         try {
-          const fetchedCoffeeStores = await fetchCoffeeStores(latLong, 30)
+          const response = await fetch(`/api/getCoffeeStoresByLocation?latLong=${latLong}&limit=30`)
+          const fetchedCoffeeStores = await response.json()
+
           dispatch({
             type: ACTION_TYPES.SET_COFFEE_STORES,
             payload: { ...state, coffeeStores: fetchedCoffeeStores }
           })
+          setCoffeeStoresError(null)
         } catch (error) {
           console.log({ error })
           setCoffeeStoresError(error.message)
