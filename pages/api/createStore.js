@@ -1,15 +1,15 @@
 import { table, findStoreById } from "@/lib/airtable"
 
-const createCoffeeStore = async (req, res) => {
+const createStore = async (req, res) => {
   // Only run if its a POST
   if(req.method === 'POST'){
     try {      
-      const incomingCoffeeShop = req.body
-
-      const createCoffeeStoreRecord = async (incomingCoffeeShop) => {
-        if(incomingCoffeeShop.name){
+      const incomingShop = req.body
+      
+      const createStoreRecord = async (incomingShop) => {
+        if(incomingShop.name){
           try {
-            let createRecord = await table.create(incomingCoffeeShop)
+            let createRecord = await table.create(incomingShop)
             res.status(200).json(createRecord.fields)
             return createRecord.fields
           } catch (err) {
@@ -22,15 +22,15 @@ const createCoffeeStore = async (req, res) => {
       }
       
       // Only continue if there is an Id coming in
-      if(incomingCoffeeShop.id){
+      if(incomingShop.id){
         // Check for existing record
-        const coffeeStoreRecord = await findStoreById(incomingCoffeeShop.id)
-      
+        const storeRecord = await findStoreById(incomingShop.id)
+        
         // Run functions depending on if a store exists or not
-        if(coffeeStoreRecord.length !== 0) {
-          res.json(coffeeStoreRecord[0])
+        if(storeRecord.length !== 0) {
+          res.json(storeRecord[0])
         } else {
-          await createCoffeeStoreRecord(incomingCoffeeShop)
+          await createStoreRecord(incomingShop)
         }
       } else {
         res.status(400).json({ message: 'Id is missing' })
@@ -42,4 +42,4 @@ const createCoffeeStore = async (req, res) => {
   } 
 }
 
-export default createCoffeeStore
+export default createStore

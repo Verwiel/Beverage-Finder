@@ -4,7 +4,7 @@ export const StoreContext = createContext()
 
 export const ACTION_TYPES = {
   SET_LAT_LONG: 'SET_LAT_LONG',
-  SET_COFFEE_STORES: 'SET_COFFEE_STORES'
+  SET_STORES: 'SET_STORES'
 }
 
 const storeReducer = (state, action) => {
@@ -13,8 +13,8 @@ const storeReducer = (state, action) => {
       return { ...state, latLong: action.payload.latLong }
     }
 
-    case ACTION_TYPES.SET_COFFEE_STORES: {
-      return { ...state, coffeeStores: action.payload.coffeeStores }
+    case ACTION_TYPES.SET_STORES: {
+      return { ...state, stores: action.payload.stores }
     }
 
     default: 
@@ -25,7 +25,7 @@ const storeReducer = (state, action) => {
 const StoreProvider = ({ children }) => {
   const initialState = {
     latLong: '',
-    coffeeStores: [],
+    stores: [],
   }
 
   const [state, dispatch] = useReducer(storeReducer, initialState)

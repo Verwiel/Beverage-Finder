@@ -4,29 +4,29 @@ import Link from "next/link"
 import Head from "next/head"
 import Image from "next/image"
 import styles from "../../styles/coffee-store.module.css"
-import { fetchCoffeeStores } from "../../lib/coffee-stores"
+import { fetchStores } from "../../lib/coffee-stores"
 import { useStore } from "../../context/store-context"
 import { isEmpty } from "../../utils"
 
 export async function getStaticProps({ params }) {
-  const coffeeStores = await fetchCoffeeStores()
-  const storeFromContext = coffeeStores.find((coffeeStore) => {
-    return coffeeStore.id === params.id
+  const stores = await fetchStores()
+  const storeFromContext = stores.find(store => {
+    return store.id === params.id
   })
 
   return {
     props: {
-      coffeeStore: storeFromContext ? storeFromContext : {},
+      store: storeFromContext ? storeFromContext : {},
     },
   }
 }
 
 export async function getStaticPaths() {
-  const coffeeStores = await fetchCoffeeStores()
-  const paths = coffeeStores.map((coffeeStore) => {
+  const stores = await fetchStores()
+  const paths = stores.map((store) => {
     return {
       params: {
-        id: coffeeStore.id,
+        id: store.id,
       },
     }
   })
@@ -36,57 +36,60 @@ export async function getStaticPaths() {
   }
 }
 
-const CoffeeStore = (initialProps) => {
+const Store = (initialProps) => {
   const router = useRouter()
   if (router.isFallback) {
     return <div>Loading...</div>
   }
 
   const id = router.query.id
-  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore)
+  const [store, setStore] = useState(initialProps.store)
 
   const {
-    state: { coffeeStores },
+    state: { stores },
   } = useStore()
 
-  const handleCreateCoffeeStore = async (store) => {
+  const handleCreateStore = async (store) => {
     try {
-      const res = await fetch('/api/createCoffeeStore', {
+      const res = await fetch('/api/createStore', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(store)
       })
-
+      
       const dbStore = await res.json()
       console.log(dbStore)
     } catch (err) {
-      console.error('Error creating coffee store', err)
+      console.error('Error creating store', err)
     }
   }
 
   useEffect(() => {
-    if (isEmpty(initialProps.coffeeStore)) {
-      if (coffeeStores.length > 0) {
-        const storeFromContext = coffeeStores.find((coffeeStore) => {
-          return coffeeStore.id === id
+    if (isEmpty(initialProps.store)) {
+      if (stores.length > 0) {
+        const storeFromContext = stores.find(store => {
+          return store.id === id
         })
-
+        
         if(storeFromContext){
-          setCoffeeStore(storeFromContext)
-          handleCreateCoffeeStore(storeFromContext)
+          setStore(storeFromContext)
+          handleCreateStore(storeFromContext)
         }
       }
     } else {
-      handleCreateCoffeeStore(initialProps.coffeeStore) // SSG
+      handleCreateStore(initialProps.store) // SSG
     }
   }, [id, initialProps])
 
-  const { name, address, parent, imgUrl } = coffeeStore
+  const { name, address, parent, imgUrl, votes } = store
+
+  const [votingCount, setVotingCount] = useState(votes)
 
   const handleUpvoteButton = () => {
-    console.log('upvote')
+    let count = votingCount + 1
+    setVotingCount(count)
   }
   
   return (
@@ -147,7 +150,7 @@ const CoffeeStore = (initialProps) => {
                 width={24}
                 height={24}
               />
-              <p className={styles.text}>{1}</p>
+              <p className={styles.text}>{votingCount}</p>
             </div>
 
             <button className={styles.upvoteButton} onClick={handleUpvoteButton}>Upvote</button>
@@ -158,4 +161,4 @@ const CoffeeStore = (initialProps) => {
   )
 }
 
-export default CoffeeStore
+export default Store

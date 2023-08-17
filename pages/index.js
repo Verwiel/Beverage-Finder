@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import { ACTION_TYPES, useStore } from "../context/store-context"
-import { fetchCoffeeStores } from '../lib/coffee-stores'
+import { fetchStores } from '../lib/coffee-stores'
 import useTrackLocation from '@/hooks/use-track-location'
 import Banner from '../components/banner'
 import Card from '../components/card'
@@ -10,44 +10,44 @@ import styles from '../styles/Home.module.css'
 
 export async function getStaticProps(context) {
   // dont use API routes within getStaticProps since the servers wont have started at build time.
-  const data = await fetchCoffeeStores()
+  const data = await fetchStores()
   return {
     props: {
-      defaultCoffeeStores: data,
+      defaultStores: data,
     },
   }
 }
 
 
-export default function Home({ defaultCoffeeStores }) {
-  const [coffeeStoresError, setCoffeeStoresError] = useState(null)
+export default function Home({ defaultStores }) {
+  const [storesError, setStoresError] = useState(null)
   const { handleTrackLocation, locationErrorMsg, isFindingLocation } = useTrackLocation()
   const { dispatch, state } = useStore()
-  const { latLong, coffeeStores } = state
+  const { latLong, stores } = state
 
   const handleOnButtonClick = () => {
     handleTrackLocation()
   }
 
   useEffect(() => {
-    async function displayCoffeeStoresByLocation() {
+    async function displayStoresByLocation() {
       if (latLong) {
         try {
-          const response = await fetch(`/api/getCoffeeStoresByLocation?latLong=${latLong}&limit=30`)
-          const fetchedCoffeeStores = await response.json()
+          const response = await fetch(`/api/getStoresByLocation?latLong=${latLong}&limit=30`)
+          const fetchedStores = await response.json()
 
           dispatch({
-            type: ACTION_TYPES.SET_COFFEE_STORES,
-            payload: { ...state, coffeeStores: fetchedCoffeeStores }
+            type: ACTION_TYPES.SET_STORES,
+            payload: { ...state, stores: fetchedStores }
           })
-          setCoffeeStoresError(null)
+          setStoresError(null)
         } catch (error) {
           console.log({ error })
-          setCoffeeStoresError(error.message)
+          setStoresError(error.message)
         }
       }
     }
-    displayCoffeeStoresByLocation()
+    displayStoresByLocation()
   }, [latLong])
 
   return (
@@ -67,8 +67,8 @@ export default function Home({ defaultCoffeeStores }) {
           <p>Something went wrong: {locationErrorMsg}</p>
         }
 
-        {coffeeStoresError &&
-          <p>Something went wrong: {coffeeStoresError}</p>
+        {storesError &&
+          <p>Something went wrong: {storesError}</p>
         }
 
         <Image 
@@ -80,11 +80,11 @@ export default function Home({ defaultCoffeeStores }) {
           priority={true}
         />
 
-        {coffeeStores.length > 0 &&
+        {stores.length > 0 &&
         <>
           <h2 className={styles.heading2}>Coffee Stores near me</h2>
           <div className={styles.cardLayout}>
-            {coffeeStores.map(store => (
+            {stores.map(store => (
               <Card 
                 key={store.id}
                 className={styles.card}
@@ -97,11 +97,11 @@ export default function Home({ defaultCoffeeStores }) {
         </>
         }
 
-        {defaultCoffeeStores.length > 0 &&
+        {defaultStores.length > 0 &&
         <>
           <h2 className={styles.heading2}>Salt Lake City Coffee Stores</h2>
           <div className={styles.cardLayout}>
-            {defaultCoffeeStores.map(store => (
+            {defaultStores.map(store => (
               <Card 
                 key={store.id}
                 className={styles.card}
