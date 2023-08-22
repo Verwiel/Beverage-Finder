@@ -22,17 +22,34 @@ export default function Home({ defaultStores }) {
   const [storesError, setStoresError] = useState(null)
   const { handleTrackLocation, locationErrorMsg, isFindingLocation } = useTrackLocation()
   const { dispatch, state } = useStore()
-  const { latLong, stores } = state
+  const { latLong, stores, isOpen, hideChains } = state
 
   const handleOnButtonClick = () => {
     handleTrackLocation()
+  }
+
+  const handleCheck = (e) => {
+    const { checked, name } = e.target
+    if(name === 'hideChains'){
+      dispatch({
+        type: ACTION_TYPES.SET_HIDE_CHAINS,
+        payload: { hideChains: checked }
+      })
+    }
+
+    if(name === 'openNow'){
+      dispatch({
+        type: ACTION_TYPES.SET_OPEN_NOW,
+        payload: { isOpen: checked }
+      })
+    }
   }
 
   useEffect(() => {
     async function displayStoresByLocation() {
       if (latLong) {
         try {
-          const response = await fetch(`/api/getStoresByLocation?latLong=${latLong}&limit=30`)
+          const response = await fetch(`/api/getStoresByLocation?latLong=${latLong}&limit=30&isOpen=${isOpen}&hideChains=${hideChains}`)
           const fetchedStores = await response.json()
 
           dispatch({
@@ -47,7 +64,7 @@ export default function Home({ defaultStores }) {
       }
     }
     displayStoresByLocation()
-  }, [latLong])
+  }, [latLong, isOpen, hideChains])
 
   return (
     <>
@@ -79,7 +96,24 @@ export default function Home({ defaultStores }) {
           priority={true}
         />
 
-        {stores.length > 0 &&
+        {stores.length > 0 && 
+          <ul className={styles.list}>
+            <li>
+              <label htmlFor="hideChains">
+                Hide Chains
+                <input type="checkbox" name="hideChains" checked={hideChains} onChange={handleCheck} />
+              </label>
+            </li>
+            <li>
+              <label htmlFor="openNow">
+                Open Now
+                <input type="checkbox" name="openNow" checked={isOpen} onChange={handleCheck} />
+              </label>
+            </li>
+          </ul>
+        }
+
+        {stores.length > 0 ?
         <>
           <h2 className={styles.heading2}>Coffee Stores near me</h2>
           <div className={styles.cardLayout}>
@@ -94,9 +128,7 @@ export default function Home({ defaultStores }) {
             ))}
           </div>
         </>
-        }
-
-        {defaultStores.length > 0 &&
+        : defaultStores.length > 0 &&
         <>
           <h2 className={styles.heading2}>Salt Lake City Coffee Stores</h2>
           <div className={styles.cardLayout}>
