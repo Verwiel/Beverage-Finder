@@ -96,10 +96,25 @@ const Store = (initialProps) => {
       setVotingCount(data.votes)
     }
   }, [data])
-
-  const handleUpvoteButton = () => {
-    let count = votingCount + 1
-    setVotingCount(count)
+  
+  const handleUpvoteButton = async () => {
+    try {
+      const res = await fetch('/api/upvoteStore', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({id})
+      })
+      
+      const dbStore = await res.json()
+      if(dbStore){
+        let count = votingCount + 1
+        setVotingCount(count)
+      }
+    } catch (err) {
+      console.error('Error upvoting store', err)
+    }
   }
 
   if(error){

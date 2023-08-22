@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer } from 'react'
 
 export const StoreContext = createContext()
+export const useStore = () => useContext(StoreContext)
 
 export const ACTION_TYPES = {
   SET_LAT_LONG: 'SET_LAT_LONG',
@@ -37,6 +38,5 @@ const StoreProvider = ({ children }) => {
   )
 }
 
-export const useStore = () => useContext(StoreContext)
 
 export default StoreProvider
