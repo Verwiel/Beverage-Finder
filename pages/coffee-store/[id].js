@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import React from "react"
 import { useRouter } from "next/router"
 import Link from "next/link"
 import Head from "next/head"
@@ -39,6 +39,7 @@ export async function getStaticPaths() {
 }
 
 const Store = (initialProps) => {
+  const { useEffect, useState } = React
   const router = useRouter()
   if (router.isFallback) {
     return <div>Loading...</div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import { ACTION_TYPES, useStore } from "../context/store-context"
@@ -9,7 +9,6 @@ import Card from '../components/card'
 import styles from '../styles/Home.module.css'
 
 export async function getStaticProps(context) {
-  // dont use API routes within getStaticProps since the servers wont have started at build time.
   const data = await fetchStores()
   return {
     props: {
@@ -18,8 +17,8 @@ export async function getStaticProps(context) {
   }
 }
 
-
 export default function Home({ defaultStores }) {
+  const { useEffect, useState } = React
   const [storesError, setStoresError] = useState(null)
   const { handleTrackLocation, locationErrorMsg, isFindingLocation } = useTrackLocation()
   const { dispatch, state } = useStore()
@@ -42,7 +41,7 @@ export default function Home({ defaultStores }) {
           })
           setStoresError(null)
         } catch (error) {
-          console.log({ error })
+          console.error({ error })
           setStoresError(error.message)
         }
       }
