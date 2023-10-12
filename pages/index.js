@@ -64,7 +64,7 @@ export default function Home({ defaultStores }) {
       }
     }
     displayStoresByLocation()
-  }, [latLong, isOpen, hideChains])
+  }, [latLong, isOpen, hideChains, dispatch, state])
 
   return (
     <>

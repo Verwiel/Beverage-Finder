@@ -39,14 +39,13 @@ export async function getStaticPaths() {
 }
 
 const Store = (initialProps) => {
-  const { useEffect, useState } = React
   const router = useRouter()
-  if (router.isFallback) {
-    return <div>Loading...</div>
-  }
-
   const id = router.query.id
-  const [store, setStore] = useState(initialProps.store)
+
+
+  const { useEffect, useState } = React
+
+  const [store, setStore] = useState(initialProps.store || {})
 
   const {
     state: { stores },
@@ -83,7 +82,7 @@ const Store = (initialProps) => {
     } else {
       handleCreateStore(initialProps.store) // SSG
     }
-  }, [id, initialProps])
+  }, [id, initialProps, stores])
 
   const { name, address, parent, imgUrl, votes } = store
 
@@ -97,6 +96,10 @@ const Store = (initialProps) => {
       setVotingCount(data.votes)
     }
   }, [data])
+
+  if (router.isFallback) {
+    return <div>Loading...</div>;
+  }
   
   const handleUpvoteButton = async () => {
     try {
