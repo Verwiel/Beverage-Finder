@@ -11,6 +11,10 @@ body {
   color: #373b64;
 }
 
+body {
+  padding-bottom: 50px;
+}
+
 @font-face {
   font-family: "IBMPlexSans";
   font-style: normal;
