@@ -51,7 +51,6 @@ export default function Home({ defaultStores }) {
         try {
           const response = await fetch(`/api/getStoresByLocation?latLong=${latLong}&limit=30&isOpen=${isOpen}&hideChains=${hideChains}`)
           const fetchedStores = await response.json()
-
           dispatch({
             type: ACTION_TYPES.SET_STORES,
             payload: { ...state, stores: fetchedStores }

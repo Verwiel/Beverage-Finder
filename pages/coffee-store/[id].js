@@ -42,9 +42,7 @@ const Store = (initialProps) => {
   const router = useRouter()
   const id = router.query.id
 
-
   const { useEffect, useState } = React
-
   const [store, setStore] = useState(initialProps.store || {})
 
   const {
@@ -85,7 +83,6 @@ const Store = (initialProps) => {
   }, [id, initialProps, stores])
 
   const { name, address, parent, imgUrl, votes } = store
-
   const [votingCount, setVotingCount] = useState(0)
 
   const { data, error } = useSWR(`/api/getStoreById?id=${id}`, fetcher)
